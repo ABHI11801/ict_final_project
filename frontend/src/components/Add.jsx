@@ -4,28 +4,44 @@ import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const Add = () => {
+  const location = useLocation()
+  const data = location.state?.data || {}
+  const update = location.state?.update || false
+  console.log(data)
   const navigate = useNavigate();
   var [inputs, setInputs] = useState({
-    title: "",
-    content: "",
-    img_url: "",
+    title: data.title || "",
+    content: data.content || "",
+    img_url: data.img_url || "",
   });
   const inputHandler = (e) => {
     console.log(e.target.value);
     setInputs({ ...inputs, [e.target.name]: e.target.value });
-    console.log("in",inputs);
+    console.log("in", inputs);
   };
   const addData = () => {
     console.log("clicked");
-    axios
-      .post("http://localhost:3001/add",inputs)
-      .then((res) => {
-        alert(res.data.message);
-        navigate("/");
+    if (data?._id) {
+      axios.put("http://localhost:3001/update/", {_id : data._id, inputs})
+      .then((res)=>{
+        alert(res.data.message)
+        navigate('/')
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err)=>{
+        console.log(err)
+      })
+    }
+    else {
+      axios
+        .post("http://localhost:3001/add", inputs)
+        .then((res) => {
+          alert(res.data.message);
+          navigate("/");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   };
   return (
     <div>
@@ -62,7 +78,7 @@ const Add = () => {
               onChange={inputHandler}
               name="content"
               value={inputs.content}
-              multiline={4}
+              multiline
             />
             <TextField
               variant="outlined"
